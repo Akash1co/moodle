@@ -50,4 +50,8 @@
 - **Upstream:** No `upstream` remote was configured at initial inspection. The requested `moodle/moodle` fetch/rebase and origin push must be recorded only after their outcomes are known.
 - **History:** The checkout is shallow. At initial inspection, `main` and the Day 2 branch pointed to `f20534726` with no divergence.
 - **Day 1 preservation:** The Day 1 branch `feat/w7d1-3m-Akasha-G` contains `docs/week7-day1-cia-review.md`, `docs/week7-day1-evidence.md`, and `docs/week7-day1-plugin-architecture.md`. They are not present on the initial Day 2 branch, whose worktree had no `docs/` directory; that branch was not checked out or modified.
-- **Commit/rebase/push status:** To be filled with actual commit hashes and command outcomes after the Git workflow is performed.
+- **Schema/query commit:** `399fbfe8628157d45bc73dc161f407ea1441c27c` — `docs(w7d2): add Moodle 5 core tables schema, ER diagram, and query analysis`.
+- **Evidence/review commit:** `7d2adb7c66b51a144de7c42861a02a703a20c1bf` — `docs(w7d2): add week 7 day 2 execution evidence and CIA review logs`.
+- **Rebase:** `git fetch upstream main` succeeded after adding `https://github.com/moodle/moodle.git` as `upstream`; `git rebase upstream/main` succeeded. At verification, the Day 2 branch was 2 commits ahead and 0 behind `upstream/main`.
+- **Push:** `git push -u origin feat/w7d2-3m-Akasha-G` succeeded without force. `origin/feat/w7d2-3m-Akasha-G` resolved to `7d2adb7c66b51a144de7c42861a02a703a20c1bf` at verification.
+- **Worktree:** Clean after the two documentation commits and push. Any subsequent evidence-log correction is tracked as its own commit.
