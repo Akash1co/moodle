@@ -18,7 +18,7 @@ From the Moodle repository root, with a configured Moodle site and database:
 php admin/cli/upgrade.php --non-interactive
 ```
 
-Alternatively, sign in as an administrator and visit **Site administration > Notifications** to run the upgrade. Moodle discovers the new plugin during the upgrade. Confirm it is enabled under **Site administration > Plugins > Blocks > Manage blocks**.
+The CLI script requires a repository-root `config.php`. This checkout currently has no root `config.php`, so do not run the command here unless the site's CLI configuration is set up at that expected path. Alternatively, on a configured site, sign in as an administrator and visit **Site administration > Notifications** to run the upgrade. Moodle discovers the new plugin during the upgrade. Confirm it is enabled under **Site administration > Plugins > Blocks > Manage blocks**.
 
 ## Dashboard verification
 
