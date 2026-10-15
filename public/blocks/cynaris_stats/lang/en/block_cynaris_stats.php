@@ -1,4 +1,6 @@
 <?php
 
 $string['pluginname'] = 'Cynaris Stats';
-$string['welcome'] = 'Cynaris Stats is installed and ready for statistics.';
+$string['gradecharttitle'] = 'Your course grades';
+$string['gradepercentage'] = 'Grade (%)';
+$string['nogrades'] = 'No course grade data is available yet.';
