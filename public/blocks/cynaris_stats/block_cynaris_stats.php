@@ -70,7 +70,7 @@ class block_cynaris_stats extends block_base {
         $chart->get_yaxis(0, true)->set_max(100);
         $chart->get_yaxis(0)->set_label(get_string('gradepercentage', 'block_cynaris_stats'));
 
-        $this->content->text = $OUTPUT->render($chart);
+        $this->content->text = html_writer::div($OUTPUT->render($chart), 'cynaris-stats-chart');
         return $this->content;
     }
 }
