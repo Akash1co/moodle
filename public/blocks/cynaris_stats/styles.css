@@ -1,0 +1,14 @@
+.cynaris-stats-chart {
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+}
+
+.cynaris-stats-chart .chart-area,
+.cynaris-stats-chart .chart-image {
+    max-width: 100%;
+}
+
+.cynaris-stats-chart canvas {
+    max-width: 100%;
+}
