@@ -42,10 +42,11 @@ class ai_quiz {
             [
                 'role' => 'system',
                 'content' => 'You create accurate educational multiple-choice questions from the supplied course content. ' .
-                    'Return only a strict JSON array containing exactly five objects. Each object must have exactly ' .
+                    'Return a JSON object with only one property named "questions". Its value must be a strict JSON ' .
+                    'array containing exactly five objects. Each object must have exactly ' .
                     'these keys: "question" (a non-empty string), "options" (an array of four distinct non-empty ' .
                     'strings), and "correct_answer" (a string exactly matching one option). Do not add markdown or ' .
-                    'text outside the JSON array.',
+                    'text outside the JSON object.',
             ],
             [
                 'role' => 'user',
@@ -73,6 +74,11 @@ class ai_quiz {
             $questions = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
         } catch (\JsonException) {
             throw new \moodle_exception('invalidquizresponse', 'local_aitutor');
+        }
+
+        if (is_array($questions) && !array_is_list($questions) &&
+                count($questions) === 1 && isset($questions['questions'])) {
+            $questions = $questions['questions'];
         }
 
         return self::validate_question_data($questions);
