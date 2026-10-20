@@ -35,6 +35,7 @@ final class ai_quiz_test extends \advanced_testcase {
         }
 
         $this->assertSame($questions, ai_quiz::validate_questions(json_encode($questions)));
+        $this->assertSame($questions, ai_quiz::validate_questions(json_encode(['questions' => $questions])));
     }
 
     /**
