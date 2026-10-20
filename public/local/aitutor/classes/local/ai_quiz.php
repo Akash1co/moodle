@@ -8,6 +8,9 @@
 
 namespace local_aitutor\local;
 
+use context;
+use core_question\local\bank\question_version_status;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -111,6 +114,94 @@ class ai_quiz {
         }
 
         return $questions;
+    }
+
+    /**
+     * Import validated questions into a course question bank category.
+     *
+     * @param array $questions Question data from {@see generate_questions()}.
+     * @param int $courseid Course containing the question category.
+     * @param int $categoryid Destination question category.
+     * @return int[] Created question ids.
+     * @throws \moodle_exception If the category is outside the course or cannot be edited.
+     */
+    public static function import_questions(array $questions, int $courseid, int $categoryid): array {
+        global $DB, $USER;
+
+        $questions = self::validate_question_data($questions);
+        $category = $DB->get_record('question_categories', ['id' => $categoryid], 'id, contextid', MUST_EXIST);
+        $context = context::instance_by_id($category->contextid);
+        $coursecontext = $context->get_course_context(false);
+        if (!$coursecontext || (int)$coursecontext->instanceid !== $courseid) {
+            throw new \moodle_exception('invalidquizcategory', 'local_aitutor');
+        }
+        require_capability('moodle/question:add', $context);
+
+        $transaction = $DB->start_delegated_transaction();
+        $questionids = [];
+        try {
+            $qtype = \question_bank::get_qtype('multichoice');
+            foreach ($questions as $questiondata) {
+                $form = self::make_question_form($questiondata, $categoryid, $context->id);
+                $question = (object)[
+                    'qtype' => 'multichoice',
+                    'createdby' => $USER->id,
+                    'modifiedby' => $USER->id,
+                    'status' => question_version_status::QUESTION_STATUS_READY,
+                ];
+                $savedquestion = $qtype->save_question($question, $form);
+                $questionids[] = (int)$savedquestion->id;
+            }
+            $transaction->allow_commit();
+        } catch (\Throwable $exception) {
+            $transaction->rollback($exception);
+        }
+
+        return $questionids;
+    }
+
+    /**
+     * Prepare the form data expected by Moodle's multichoice question type API.
+     *
+     * @param array $questiondata Validated MCQ data.
+     * @param int $categoryid Question category id.
+     * @param int $contextid Question category context id.
+     * @return \stdClass Form data for question_type::save_question().
+     */
+    private static function make_question_form(array $questiondata, int $categoryid, int $contextid): \stdClass {
+        $form = new \stdClass();
+        $form->category = $categoryid . ',' . $contextid;
+        $form->name = shorten_text($questiondata['question'], 250);
+        $form->questiontext = ['text' => $questiondata['question'], 'format' => FORMAT_PLAIN];
+        $form->generalfeedback = ['text' => '', 'format' => FORMAT_HTML];
+        $form->defaultmark = 1;
+        $form->penalty = 0.3333333;
+        $form->status = question_version_status::QUESTION_STATUS_READY;
+        $form->noanswers = 4;
+        $form->numhints = 0;
+        $form->single = '1';
+        $form->shuffleanswers = 1;
+        $form->answernumbering = 'abc';
+        $form->showstandardinstruction = 0;
+        $form->shownumcorrect = 1;
+        $form->correctfeedback = ['text' => '', 'format' => FORMAT_HTML];
+        $form->partiallycorrectfeedback = ['text' => '', 'format' => FORMAT_HTML];
+        $form->incorrectfeedback = ['text' => '', 'format' => FORMAT_HTML];
+        $form->answer = [];
+        $form->feedback = [];
+        $form->fraction = [];
+
+        foreach ($questiondata['options'] as $index => $option) {
+            $form->answer[$index] = ['text' => $option, 'format' => FORMAT_PLAIN];
+            $form->feedback[$index] = ['text' => '', 'format' => FORMAT_HTML];
+            $form->fraction[$index] = $option === $questiondata['correct_answer'] ? 1 : 0;
+        }
+
+        $form->hint = [];
+        $form->hintclearwrong = [];
+        $form->hintshownumcorrect = [];
+
+        return $form;
     }
 
 }
