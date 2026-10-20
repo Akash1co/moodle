@@ -91,7 +91,7 @@ class ai_tutor {
     public static function complete_groq(array $messages, ?array $responseformat = null): array {
         $apikey = trim((string)get_config('local_aitutor', 'groqapikey'));
         if ($apikey === '') {
-            throw new \moodle_exception('missingapikey', 'local_aitutor');
+            throw new \moodle_exception('missinggroqapikey', 'local_aitutor');
         }
 
         $result = self::request_provider(
