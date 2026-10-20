@@ -13,3 +13,5 @@ $string['openrouterapikey'] = 'OpenRouter API key';
 $string['openrouterapikey_desc'] = 'API key used when Groq is unavailable.';
 $string['missingapikey'] = 'Configure at least one AI provider API key in the AI Tutor settings.';
 $string['requestfailed'] = 'The AI provider request failed.';
+$string['invalidquizinput'] = 'Enter course content before generating questions.';
+$string['invalidquizresponse'] = 'The AI provider returned invalid quiz question data.';
