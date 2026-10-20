@@ -81,17 +81,59 @@ class ai_tutor {
     }
 
     /**
+     * Request a completion from Groq without switching providers.
+     *
+     * @param array $messages Chat messages in OpenAI chat-completions format.
+     * @param array|null $responseformat Optional response format.
+     * @return array Decoded provider response.
+     * @throws \moodle_exception If no Groq key is configured or the request fails.
+     */
+    public static function complete_groq(array $messages, ?array $responseformat = null): array {
+        $apikey = trim((string)get_config('local_aitutor', 'groqapikey'));
+        if ($apikey === '') {
+            throw new \moodle_exception('missingapikey', 'local_aitutor');
+        }
+
+        $result = self::request_provider(
+            self::GROQ_ENDPOINT,
+            self::GROQ_MODEL,
+            $apikey,
+            $messages,
+            $responseformat
+        );
+
+        if ($result['fallback']) {
+            debugging('Groq AI Tutor request failed (' . $result['reason'] . ').', DEBUG_NORMAL);
+            throw new \moodle_exception('requestfailed', 'local_aitutor');
+        }
+
+        return $result['response'];
+    }
+
+    /**
      * Send a request to one provider.
      *
      * @param string $endpoint Provider endpoint.
      * @param string $model Provider model.
      * @param string $apikey Provider API key.
      * @param array $messages Chat messages.
+     * @param array|null $responseformat Optional response format.
      * @return array Result containing either a decoded response or a fallback reason.
      * @throws \moodle_exception If the provider returns a non-retryable error or invalid JSON.
      */
-    private static function request_provider(string $endpoint, string $model, string $apikey, array $messages): array {
-        $body = json_encode(['model' => $model, 'messages' => $messages]);
+    private static function request_provider(
+        string $endpoint,
+        string $model,
+        string $apikey,
+        array $messages,
+        ?array $responseformat = null
+    ): array {
+        $request = ['model' => $model, 'messages' => $messages];
+        if ($responseformat !== null) {
+            $request['response_format'] = $responseformat;
+        }
+
+        $body = json_encode($request);
         if ($body === false) {
             throw new \moodle_exception('requestfailed', 'local_aitutor');
         }
