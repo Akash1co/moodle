@@ -9,5 +9,5 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_aitutor';
-$plugin->version = 2026101900;
+$plugin->version = 2026102100;
 $plugin->requires = 2026100500;
