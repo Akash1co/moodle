@@ -365,6 +365,15 @@ $tasks = array(
         'dayofweek' => '*',
         'month' => '*'
     ),
+    [
+        'classname' => \core\task\personal_access_token_expiry_task::class,
+        'blocking' => 0,
+        'minute' => 'R',
+        'hour' => '3',
+        'day' => '*',
+        'dayofweek' => '*',
+        'month' => '*',
+    ],
     array(
         'classname' => 'core\task\analytics_cleanup_task',
         'blocking' => 0,
@@ -504,5 +513,14 @@ $tasks = array(
         'dayofweek' => '*',
         'month' => '*',
         'disabled' => false,
+    ],
+    [
+        'classname' => 'core\task\send_oauth2_secret_expiry_notifications_task',
+        'blocking' => 0,
+        'minute' => 'R',
+        'hour' => '01',
+        'day' => '*',
+        'month' => '*',
+        'dayofweek' => '*',
     ],
 );

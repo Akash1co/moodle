@@ -2750,11 +2750,14 @@ function require_logout() {
     // Clone of $USER object to be used by auth plugins.
     $user = fullclone($USER);
 
-    // Delete session record and drop $_SESSION content.
-    \core\session\manager::terminate_current();
-
-    // Trigger event AFTER action.
-    $event->trigger();
+    // Trigger before terminating so log writers can record login-as context.
+    // Always end the session, even if an event observer throws an Error.
+    try {
+        $event->trigger();
+    } finally {
+        // Delete session record and drop $_SESSION content.
+        \core\session\manager::terminate_current();
+    }
 
     // Hook to execute auth plugins redirection after event trigger.
     foreach ($authplugins as $authplugin) {
@@ -6075,6 +6078,10 @@ function send_confirmation_email($user, $confirmationurl = null) {
 
     $data->link = $confirmationpath . ( $hasquerystring ? '&' : '?') . 'data='. $user->secret .'/'. $username;
 
+    // Add the username field as placeholder to the template data.
+    // Hereby, use the unchanged username from the user object as we do not need url encoding here.
+    $data->username = $user->username;
+
     $message     = get_string('emailconfirmation', '', $data);
     $messagehtml = text_to_html(get_string('emailconfirmation', '', $data), false, false, true);
 
@@ -9037,7 +9044,7 @@ function get_performance_info() {
     if (is_readable('/proc/loadavg') && $loadavg = @file('/proc/loadavg')) {
         list($serverload) = explode(' ', $loadavg[0]);
         unset($loadavg);
-    } else if ( function_exists('is_executable') && is_executable('/usr/bin/uptime') && $loadavg = `/usr/bin/uptime` ) {
+    } else if (function_exists('is_executable') && is_executable('/usr/bin/uptime') && $loadavg = shell_exec('/usr/bin/uptime')) {
         if (preg_match('/load averages?: (\d+[\.,:]\d+)/', $loadavg, $matches)) {
             $serverload = $matches[1];
         } else {
